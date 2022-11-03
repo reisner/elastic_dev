@@ -1,0 +1,59 @@
+version: '3.7'
+
+# Check indices at: http://localhost:9200/_cat/indices
+# From another container, connect to host: http://host.docker.internal:9200
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0-arm64
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      # - ELASTIC_PASSWORD=abc123
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/Users/romeis/data/elastic
+    ports:
+      - 9200:9200
+      - 9300:9300
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD-SHELL",
+    #       "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+    #     ]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 120
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.5.0-arm64
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD-SHELL",
+    #       "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+    #     ]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 120
+
+volumes:
+  elasticsearch-data:
+    driver: local

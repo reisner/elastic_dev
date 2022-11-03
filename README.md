@@ -1,2 +1,11 @@
 # elastic_dev
-Local elastic instance for testing
+
+Minimal repository for testing elastic search locally.
+
+## Usage
+
+Clone this repo, and from this directory run:
+
+```
+docker-compose up
+```
